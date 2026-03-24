@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard
+  namespace: kitchen
+data:
+  dashboard.json: |
+    {
+      "title": "Kitchen API Dashboard",
+      "panels": [],
+      "schemaVersion": 16,
+      "version": 1
+    }

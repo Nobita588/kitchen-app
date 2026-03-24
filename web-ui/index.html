@@ -1,0 +1,685 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kitchen Command Center</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #111;
+      --bg-card: #1a1a1a;
+      --bg-glass: rgba(255,255,255,0.03);
+      --accent-primary: #ff6b35;
+      --accent-secondary: #f7931e;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --text-primary: #ffffff;
+      --text-secondary: #b3b3b3;
+      --text-muted: #6b7280;
+      --border: rgba(255,255,255,0.1);
+      --shadow: 0 25px 50px -12px rgba(0,0,0,0.7);
+      --gradient: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated Background */
+    .bg-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(120,119,198,0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255,119,198,0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(120,219,255,0.3) 0%, transparent 50%);
+      animation: float 20s ease-in-out infinite;
+      z-index: -1;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(1.05) rotate(180deg); }
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 3rem;
+      background: var(--bg-glass);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 2rem 2.5rem;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1.5rem;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      background: var(--success);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .stat-card {
+      background: var(--bg-glass);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+    }
+
+    .stat-card.total::before { background: var(--gradient); }
+    .stat-card.pending::before { background: var(--warning); }
+    .stat-card.preparing::before { background: var(--accent-primary); }
+    .stat-card.ready::before { background: var(--success); }
+
+    .stat-card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--shadow);
+      border-color: var(--accent-primary);
+    }
+
+    .stat-icon { font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.8; }
+    .stat-label { color: var(--text-muted); font-size: 0.85rem; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
+    .stat-value { font-size: 3rem; font-weight: 800; line-height: 1; }
+
+    /* Quick Order Form */
+    .quick-order {
+      background: var(--bg-glass);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 2.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .quick-order h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .input-field {
+      flex: 1;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.25rem 1.5rem;
+      color: var(--text-primary);
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+    }
+
+    .input-field::placeholder { color: var(--text-muted); }
+
+    .btn-primary {
+      background: var(--gradient);
+      border: none;
+      border-radius: 16px;
+      padding: 1.25rem 2.5rem;
+      color: #000;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+    .btn-primary:active { transform: translateY(0); }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 2rem 0;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* Orders Section */
+    .orders-section {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+
+    .filters {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .filter-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 0.75rem 1.5rem;
+      border-radius: 50px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.85rem;
+    }
+
+    .filter-btn.active, .filter-btn:hover {
+      background: var(--accent-primary);
+      border-color: var(--accent-primary);
+      color: #000;
+    }
+
+    .orders-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .order-card {
+      background: var(--bg-glass);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 2rem;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .order-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+    }
+
+    .order-card.pending::before { background: var(--warning); }
+    .order-card.preparing::before { background: var(--accent-primary); }
+    .order-card.ready::before { background: var(--success); }
+    .order-card.delivered::before { background: var(--text-muted); }
+
+    .order-card:hover {
+      transform: translateY(-12px) scale(1.02);
+      box-shadow: var(--shadow);
+      border-color: var(--accent-primary);
+    }
+
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1.5rem;
+    }
+
+    .order-number {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      letter-spacing: 1px;
+    }
+
+    .status-tag {
+      padding: 0.5rem 1rem;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-tag.pending { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+    .status-tag.preparing { background: rgba(255, 107, 53, 0.2); color: var(--accent-primary); }
+    .status-tag.ready { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+    .status-tag.delivered { background: rgba(156, 163, 175, 0.2); color: var(--text-muted); }
+
+    .order-emoji { font-size: 3.5rem; display: block; margin: 1rem 0; text-align: center; }
+    .order-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    .order-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .order-time {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .status-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.85rem;
+    }
+
+    .status-btn:hover {
+      background: var(--accent-primary);
+      border-color: var(--accent-primary);
+      color: #000;
+      transform: translateY(-2px);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      grid-column: 1/-1;
+    }
+
+    .empty-emoji { font-size: 6rem; display: block; margin-bottom: 2rem; opacity: 0.5; }
+    .empty-title { font-size: 2rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 1rem; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem 2rem;
+      font-weight: 500;
+      z-index: 1000;
+      transform: translateX(400px);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      max-width: 400px;
+      box-shadow: var(--shadow);
+    }
+
+    .toast.show { transform: translateX(0); opacity: 1; }
+    .toast.success { border-left: 4px solid var(--success); }
+    .toast.error { border-left: 4px solid var(--accent-primary); }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container { padding: 1rem; }
+      .header { flex-direction: column; gap: 1.5rem; text-align: center; }
+      .input-group { flex-direction: column; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .orders-grid { grid-template-columns: 1fr; }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.2); }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-animation"></div>
+  
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1><i class="fas fa-fire"></i> Kitchen Command</h1>
+      <div class="status-indicator">
+        <div class="status-dot"></div>
+        <span>LIVE ORDERS</span>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card total">
+        <div class="stat-icon"><i class="fas fa-clipboard-list"></i></div>
+        <div class="stat-label">Total Orders</div>
+        <div class="stat-value" id="stat-total">0</div>
+      </div>
+      <div class="stat-card pending">
+        <div class="stat-icon"><i class="fas fa-clock"></i></div>
+        <div class="stat-label">Pending</div>
+        <div class="stat-value" id="stat-pending">0</div>
+      </div>
+      <div class="stat-card preparing">
+        <div class="stat-icon"><i class="fas fa-fire-flame-curly"></i></div>
+        <div class="stat-label">Cooking</div>
+        <div class="stat-value" id="stat-preparing">0</div>
+      </div>
+      <div class="stat-card ready">
+        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+        <div class="stat-label">Ready</div>
+        <div class="stat-value" id="stat-ready">0</div>
+      </div>
+    </div>
+
+    <!-- Quick Order -->
+    <div class="quick-order">
+      <h2><i class="fas fa-plus-circle"></i> New Order</h2>
+      <div class="input-group">
+        <select class="input-field" id="dish-select">
+          <option value="">🔥 Quick Pick</option>
+          <optgroup label="🍛 South Indian Favorites">
+            <option value="Masala Dosa">🫓 Masala Dosa</option>
+            <option value="Idli Sambhar">🍚 Idli Sambhar</option>
+            <option value="Vada Pav">🍩 Vada Pav</option>
+          </optgroup>
+          <optgroup label="🍗 Non-Veg">
+            <option value="Chicken Biryani">🍗 Chicken Biryani</option>
+            <option value="Chicken 65">🔥 Chicken 65</option>
+            <option value="Fish Fry">🐟 Fish Fry</option>
+          </optgroup>
+          <optgroup label="🥗 Veg Specials">
+            <option value="Paneer Tikka">🧀 Paneer Tikka</option>
+            <option value="Gobi 65">🥦 Gobi 65</option>
+          </optgroup>
+        </select>
+        <button class="btn-primary" onclick="placeOrder('select')">
+          <i class="fas fa-bolt"></i> Add Order
+        </button>
+      </div>
+      <div class="divider">or custom</div>
+      <div class="input-group">
+        <input class="input-field" id="dish-input" type="text" placeholder="Type custom dish..." />
+        <button class="btn-primary" onclick="placeOrder('input')">
+          <i class="fas fa-utensils"></i> Add Custom
+        </button>
+      </div>
+    </div>
+    <!-- Orders CONTINUED -->
+    <div class="orders-section">
+      <div class="section-header">
+        <h2 class="section-title">Live Orders</h2>
+        <div class="filters">
+          <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+          <button class="filter-btn" onclick="setFilter('pending', this)">Pending</button>
+          <button class="filter-btn" onclick="setFilter('preparing', this)">Cooking</button>
+          <button class="filter-btn" onclick="setFilter('ready', this)">Ready</button>
+        </div>
+      </div>
+      
+      <div class="orders-grid" id="orders-grid">
+        <!-- Orders will be populated by JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // 🔥 FULLY OFFLINE - LocalStorage Powered Kitchen App
+    let allOrders = JSON.parse(localStorage.getItem('kitchenOrders')) || [];
+    let currentFilter = 'all';
+
+    const DISH_EMOJIS = {
+      'Masala Dosa': '🫓', 'Idli Sambhar': '🍚', 'Vada Pav': '🍩',
+      'Chicken Biryani': '🍗', 'Chicken 65': '🔥', 'Fish Fry': '🐟',
+      'Paneer Tikka': '🧀', 'Gobi 65': '🥦', 'Pongal': '🥣'
+    };
+
+    const STATUS_NEXT = {
+      'pending': 'preparing',
+      'preparing': 'ready',
+      'ready': 'delivered'
+    };
+
+    function getNextId() {
+      return Math.floor(Math.random() * 10000) + 1;
+    }
+
+    function getEmoji(dishName) {
+      return DISH_EMOJIS[dishName] || '🍽️';
+    }
+
+    function saveOrders() {
+      localStorage.setItem('kitchenOrders', JSON.stringify(allOrders));
+    }
+
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `toast show ${type}`;
+      setTimeout(() => {
+        toast.className = 'toast';
+      }, 4000);
+    }
+
+    function updateStats() {
+      document.getElementById('stat-total').textContent = allOrders.length;
+      document.getElementById('stat-pending').textContent = 
+        allOrders.filter(o => o.status === 'pending').length;
+      document.getElementById('stat-preparing').textContent = 
+        allOrders.filter(o => o.status === 'preparing').length;
+      document.getElementById('stat-ready').textContent = 
+        allOrders.filter(o => o.status === 'ready').length;
+    }
+
+    function setFilter(filter, button) {
+      currentFilter = filter;
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      button.classList.add('active');
+      renderOrders();
+    }
+
+    function renderOrders() {
+      const grid = document.getElementById('orders-grid');
+      const filteredOrders = currentFilter === 'all' 
+        ? allOrders 
+        : allOrders.filter(order => order.status === currentFilter);
+
+      if (filteredOrders.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-emoji">🍳</div>
+            <div class="empty-title">No orders ${currentFilter === 'all' ? 'yet' : `in ${currentFilter}`}</div>
+            <p style="color: var(--text-muted); font-size: 1.1rem;">${currentFilter === 'all' ? 'Start by adding your first order!' : 'All clear! 🚀'}</p>
+          </div>`;
+        return;
+      }
+
+      grid.innerHTML = filteredOrders.slice().reverse().map((order, index) => {
+        const nextStatus = STATUS_NEXT[order.status];
+        const timeAgo = getTimeAgo(order.createdAt);
+        
+        return `
+          <div class="order-card ${order.status}" style="animation-delay: ${index * 0.1}s">
+            <div class="order-header">
+              <div class="order-number">Order #${order.id}</div>
+              <div class="status-tag ${order.status}">${order.status.toUpperCase()}</div>
+            </div>
+            <div class="order-emoji">${getEmoji(order.dish)}</div>
+            <div class="order-name">${order.dish}</div>
+            <div class="order-footer">
+              <div class="order-time">
+                <i class="fas fa-clock"></i>
+                ${timeAgo}
+              </div>
+              ${nextStatus ? 
+                `<button class="status-btn" onclick="advanceStatus(${order.id}, '${nextStatus}')">
+                  <i class="fas fa-arrow-right"></i> Mark ${nextStatus}
+                </button>` : 
+                `<span style="color: var(--success); font-weight: 600;">
+                  <i class="fas fa-check"></i> Delivered
+                </span>`
+              }
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function getTimeAgo(timestamp) {
+      const now = Date.now();
+      const diff = now - timestamp;
+      const minutes = Math.floor(diff / 60000);
+      
+      if (minutes < 1) return 'Just now';
+      if (minutes === 1) return '1 min ago';
+      if (minutes < 60) return `${minutes} mins ago`;
+      return `${Math.floor(minutes / 60)}h ago`;
+    }
+
+    window.placeOrder = function(source) {
+      let dish = source === 'select' 
+        ? document.getElementById('dish-select').value 
+        : document.getElementById('dish-input').value.trim();
+
+      if (!dish) {
+        showToast('Please select or enter a dish name!', 'error');
+        return;
+      }
+
+      const newOrder = {
+        id: getNextId(),
+        dish: dish.charAt(0).toUpperCase() + dish.slice(1),
+        status: 'pending',
+        createdAt: Date.now()
+      };
+
+      allOrders.unshift(newOrder);
+      saveOrders();
+      updateStats();
+      renderOrders();
+      
+      // Reset form
+      document.getElementById('dish-select').value = '';
+      document.getElementById('dish-input').value = '';
+      
+      showToast(`✅ New order added: ${newOrder.dish}`);
+    };
+
+    window.advanceStatus = function(id, newStatus) {
+      allOrders = allOrders.map(order => 
+        order.id == id ? { ...order, status: newStatus } : order
+      );
+      saveOrders();
+      updateStats();
+      renderOrders();
+      showToast(`🔥 Order #${id} → ${newStatus.toUpperCase()}`);
+    };
+
+    // Initialize app
+    function init() {
+      updateStats();
+      renderOrders();
+    }
+
+    // Auto-refresh every 3 seconds
+    setInterval(() => {
+      updateStats();
+      if (document.visibilityState === 'visible') {
+        renderOrders();
+      }
+    }, 3000);
+
+    // Start the app
+    init();
+  </script>
+</body>
+</html>
